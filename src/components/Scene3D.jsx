@@ -36,6 +36,9 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
     const [tableData, setTableData] = useState([]);
     const [isRoomLevel, setIsRoomLevel] = useState(false);
     const [showDraggableTable, setShowDraggableTable] = useState(false);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [zoomLevel, setZoomLevel] = useState(1); // 添加缩放级别状态
+    const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
 
     // 获取当前应该显示的图片
     const getCurrentImage = () => {
@@ -45,12 +48,32 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
         return IMAGES[currentLevel][is3DView ? '3d' : '2d'];
     };
 
-    // 处理双击事件
-    const handleDoubleClick = () => {
-        const currentIndex = LEVELS.indexOf(currentLevel);
-        if (currentIndex < LEVELS.length - 1) {
-            setCurrentLevel(LEVELS[currentIndex + 1]);
-        }
+    // 修改处理双击事件
+    const handleDoubleClick = (e) => {
+        const rect = e.target.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        
+        setZoomPosition({ x, y });
+        setIsTransitioning(true);
+        
+        // 第一次缩放
+        setZoomLevel(3);
+        
+        // 第二次缩放
+        setTimeout(() => {
+            setZoomLevel(5);
+        }, 500);
+
+        // 在动画结束后切换层级
+        setTimeout(() => {
+            const currentIndex = LEVELS.indexOf(currentLevel);
+            if (currentIndex < LEVELS.length - 1) {
+                setCurrentLevel(LEVELS[currentIndex + 1]);
+            }
+            setIsTransitioning(false);
+            setZoomLevel(1); // 重置缩放级别
+        }, 1500); // 延长总动画时间
     };
 
     // 清空标签
@@ -264,18 +287,30 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
         );
     }
 
-    // 显示对应层级的2D/3D图片
+    // 修改返回图片视图的部分
     return (
-        <div style={{ display: 'flex', height: '100%', position: 'relative' }}>
-            <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ display: 'flex', height: '100%', position: 'relative', justifyContent: 'center'}}>
+            <div style={{ 
+                flex: 1, 
+                position: 'relative', 
+                overflow: 'hidden',
+                display: 'flex',  // 添加 flex 布局
+                justifyContent: 'center',  // 水平居中
+                alignItems: 'center'  // 垂直居中
+            }}>
                 <img
                     src={getCurrentImage()}
                     alt={`${currentLevel} view`}
                     style={{
-                        width: '100%',
-                        height: '100%',
+                        width: '80%',
+                        height: '80%',
                         objectFit: 'cover',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        transition: 'all 0.8s ease-in-out',
+                        transform: `scale(${zoomLevel})`,
+                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                        opacity: isTransitioning ? 0 : 1
+                        // 移除了多余的 justifyContent
                     }}
                     onDoubleClick={handleDoubleClick}
                 />
@@ -285,7 +320,6 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
                     {is3DView ? '2D' : '3D'}
                 </Button>
             </div>
-           
         </div>
     );
 };

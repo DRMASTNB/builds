@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Descriptions } from 'antd';
+import { Table, Input } from 'antd';
 import Draggable from 'react-draggable';
 import PropTypes from 'prop-types';
 
-const DraggableTable = ({ 
-    dataSource, 
+const DraggableData = ({ 
+    dataSource: initialDataSource, 
     title = "数据表格",
+    columns = [],
     defaultPosition = { x: 100, y: 100 },
-    columnnumber,
+    onDataChange
 }) => {
+    const [dataSource, setDataSource] = useState(initialDataSource);
     const [position, setPosition] = useState(defaultPosition);
     const [bounds, setBounds] = useState({
         left: 0,
@@ -29,6 +31,36 @@ const DraggableTable = ({
         });
     };
 
+    // 处理单元格编辑
+    const handleSiteAuditChange = (value, record) => {
+        const newData = [...dataSource];
+        const index = newData.findIndex(item => item.roomNumber === record.roomNumber);
+        if (index > -1) {
+            newData[index] = { ...newData[index], siteAudit: value };
+            setDataSource(newData);
+            if (onDataChange) {
+                onDataChange(newData);
+            }
+        }
+    };
+
+    // 扩展列配置
+    const enhancedColumns = columns.map(col => {
+        if (col.key === 'siteAudit') {
+            return {
+                ...col,
+                render: (text, record) => (
+                    <Input
+                        value={text}
+                        onChange={e => handleSiteAuditChange(e.target.value, record)}
+                        style={{ width: '100%' }}
+                    />
+                )
+            };
+        }
+        return col;
+    });
+
     return (
         <Draggable
             defaultPosition={defaultPosition}
@@ -47,7 +79,7 @@ const DraggableTable = ({
                     boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                     zIndex: 1000,
                     width: 'auto',
-                    minWidth: '1000px',
+                    minWidth: '800px',
                     
                 }}
             >
@@ -64,16 +96,18 @@ const DraggableTable = ({
                     {title}
                 </div>
                 <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
-                    <Descriptions bordered column={columnnumber}items={dataSource} >
-                     
-                    </Descriptions>
+                    <Table 
+                        dataSource={dataSource} 
+                        columns={enhancedColumns}
+                        pagination={false} 
+                    />
                 </div>
             </div>
         </Draggable>
     );
 };
 
-DraggableTable.propTypes = {
+DraggableData.propTypes = {
     dataSource: PropTypes.arrayOf(PropTypes.object).isRequired,
     title: PropTypes.oneOfType([
         PropTypes.string,
@@ -83,7 +117,8 @@ DraggableTable.propTypes = {
         x: PropTypes.number,
         y: PropTypes.number
     }),
-    columnnumber: PropTypes.number
+    columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+    onDataChange: PropTypes.func
 };
 
-export default DraggableTable; 
+export default DraggableData; 

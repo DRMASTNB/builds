@@ -4,18 +4,23 @@ import {  UserOutlined } from '@ant-design/icons';
 import backgroundImage from '../assets/LoginBackground2.jpg';
 import logo2 from "../assets/Dplogo.png";
 import Scene3D from '../components/Scene3D.jsx'
-import { LEVELS, TOP_MENU_ITEMS } from '../constants/Consts';
+import { LEVELS, TOP_MENU_ITEMS, TABLE_COLUMNS, TABLE_COLUMNS_DEVICE, TABLE_COLUMNS_DEVICESERIVE,ELECTRIC_SHUTTER_DATA } from '../constants/Consts';
 import DraggableTable from '../components/DraggableTable';
+import DraggableData from '../components/DraggableData';
 import { useNavigate } from "react-router-dom";
 const { Sider, Content } = Layout;
 
 const Main1 = () => {
     const navigate = useNavigate();
     const [buildingInfo, setBuildingInfo] = useState([]);
+    const [buildingachive, setBuildingachive] = useState([]);
     const [currentLevel, setCurrentLevel] = useState('campus');
+    const [deviceInfo, setDeviceInfo] = useState([]);
     const [draggableTableControls, setDraggableTableControls] = useState({
         roomInfo: false,
+        buildingachive: false,
         deviceInfo: false,
+        electricShutter: false,
         assetInfo: false
     });
     const [selectedItems, setSelectedItems] = useState({
@@ -31,6 +36,15 @@ const Main1 = () => {
         floors: [],     // 楼层列表
         rooms: []       // 房间列表
     });
+    const electricShutterData = [
+        { label: '变电所名称', value: '某民伴建变电所', isTitle: true },
+        { label: '变电所位置', value: '某民伴建地下二层' },
+        { label: '建设投运时间', value: '2003年6月' },
+        { label: '变压器容量', value: '2*1600KVA' },
+        { label: '变压器历史', value: '1号变：79% 2021年\n2号变：63% 2020年', highlight: true },
+        { label: '主要元器件', value: '改造大修情况' },
+        { label: '变电所下游站点', value: '某民伴建地下网层-地上27层合计29层' }
+    ];
     
 
     // 处理菜单项选择
@@ -99,6 +113,135 @@ const Main1 = () => {
             fontWeight: isActive ? 'bold' : 'normal'
         };
     };
+    const fetchBuildingachive = () => {
+        // requestGetLandInfo(selectedItems.building, 0).then(res => {
+        //     console.log(res);
+        // });
+        const rawData = [
+            {
+                roomNumber: '1',
+                roomUsage: '无',
+                useDepartment: '无',
+                useArea: '无',
+                actualUsage: '无',
+                buildingTime: '无',
+                siteAudit: '无',
+                
+            },
+            {
+                roomNumber: '2',
+                roomUsage: '无',
+                useDepartment: '无',
+                useArea: '无',
+                actualUsage: '无',
+                buildingTime: '无',
+                siteAudit: '无',
+            },
+            {
+                roomNumber: '3',
+                roomUsage: '无',
+                useDepartment: '无',
+                useArea: '无',
+                actualUsage: '无',
+                buildingTime: '无',
+                siteAudit: '无',
+            }
+        ];
+        if (buildingachive.length === 0) {
+            setBuildingachive(rawData);
+        }
+    };
+    const fetchBuildingInfo = () => {
+        // requestGetBuildingInfo(selectedItems.building, 0).then(res => {
+        //     console.log(res);
+        // });
+        const rawData = [
+            {
+                buildingName: '蒙民维楼',
+                projectName: '南京大学科技楼二期',
+                projectTime: '2001~2003年',
+                projectCompletionTime: '2003年11月21日',
+                buildingUsage: '科研与教学',
+                buildingScale: '地上',
+                buildingScale2: '30000',
+                buildingFloor: '地上28层，地下2层',
+                projectInitialDesignTime: '2000年',
+                landachive: '无',
+                protect:"否",
+                buildingachive: '无'
+            }
+        ];
+
+        // 定义字段映射和显示顺序
+        const fieldOrder = [
+            'buildingName',
+            'projectName',
+            'buildingUsage',
+            'buildingScale',
+            'buildingFloor',
+            'projectTime',
+            'projectCompletionTime',
+            'projectInitialDesignTime',
+            'landachive',
+            'protect',
+            'buildingachive'
+        ];
+
+        const fieldMapping = {
+            buildingName: '建筑名称',
+            projectName: '项目名称',
+            projectTime: '项目时间',
+            projectCompletionTime: '竣工时间',
+            buildingUsage: '建筑用途',
+            buildingFloor: '建筑楼层',
+            projectInitialDesignTime: '初始设计时间',
+            landachive: '土地档案',
+            protect: '是否文保建筑',
+            buildingachive: '房屋档案'
+        };
+
+        // 按照指定顺序转换数据
+        const formattedData = fieldOrder.map((key, index) => {
+            if (key === 'buildingScale') {
+                return {
+                    key: String(index + 1),
+                    label: '建筑规模',
+                    children: <span style={{ whiteSpace: 'normal' }}>{`${rawData[0].buildingScale}${rawData[0].buildingScale2}平方米`}</span>
+                };
+            }
+            if (key === 'buildingScale2') return null;
+
+            return {
+                key: String(index + 1),
+                label: fieldMapping[key] || key,
+                children: <span style={{ whiteSpace: 'normal' }}>{rawData[0][key]}</span>
+            };
+        }).filter(Boolean);
+
+        setBuildingInfo(formattedData);
+    };
+    const fetchDeviceInfo = () => {
+        // requestGetDeviceInfo(selectedItems.building, 0).then(res => {
+        //     console.log(res);
+        // });
+        const rawData = [
+            {
+                roomNumber: '1',
+                electricShutter: '无',
+                classroomLighting: '无',
+                blackboardLight: '无'       
+            },
+            {
+                roomNumber: '2',
+                electricShutter: '无',
+                classroomLighting: '无',
+                blackboardLight: '无'
+            }
+        ];
+        setDeviceInfo(rawData);
+    
+    }
+    
     const MenuItemClick = ({ key }) => {
         // Check current level before processing menu clicks
         if (key.startsWith('archive-') || key.startsWith('power-')) {
@@ -124,25 +267,67 @@ const Main1 = () => {
                     roomInfo: !prev.roomInfo
                 }));
                 break;
-            case 'archive-2':
+            case 'archive-1-2':
+                fetchBuildingInfo();
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                    roomInfo: !prev.roomInfo
+                }));
+                break;
+            case 'archive-1-3':
+                fetchBuildingachive();
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                    buildingachive: !prev.buildingachive
+                }));
                 break;
 
             case 'function-1':
                 break;
-            case 'function-2':
-                break;
+            case 'function-2-2':
+                fetchBuildingachive();
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                    buildingachive: !prev.buildingachive
+                }));
+                    break;
             // ... 其他功能用途子项
-
+            case 'function-2-3':
+                fetchBuildingachive();
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                    buildingachive: !prev.buildingachive
+                }));
+                break;
             // 配电信息
             case 'power-1':
             case 'power-2':
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                    electricShutter: !prev.electricShutter
+                }));
                 break;
 
             // 建设信息
-            case 'construction-1':
-            case 'construction-2':
+            case 'construction-3-1':
+                fetchBuildingachive();
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                    buildingachive: !prev.buildingachive
+                }));
                 break;
-
+            case 'construction-3-3':fetchDeviceInfo();
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                   deviceInfo: !prev.deviceInfo
+                }));
+                break;
+            case 'construction-3-4':fetchDeviceInfo();
+                setDraggableTableControls(prev => ({
+                    ...prev,
+                    deviceInfo: !prev.deviceInfo
+                }));
+                break;
             // 运维信息
             case 'maintenance-1':
             case 'maintenance-2':
@@ -167,66 +352,7 @@ const Main1 = () => {
 
         setSelectedItems(newSelectedItems);
     }, [currentLevel]);
-    const fetchBuildingInfo = () => {
-        // requestGetBuildingInfo(selectedItems.building, 0).then(res => {
-        //     console.log(res);
-        // });
-        const rawData = [
-            {
-                buildingName: '蒙民维楼',
-                projectName: '南京大学科技楼二期',
-                projectTime: '2001~2003年',
-                projectCompletionTime: '2003年11月21日',
-                buildingUsage: '科研与教学',
-                buildingScale: '地上',
-                buildingScale2: '30000',
-                buildingFloor: '地上28层，地下2层',
-                projectInitialDesignTime: '2000年',
-            }
-        ];
 
-        // 定义字段映射和显示顺序
-        const fieldOrder = [
-            'buildingName',
-            'projectName',
-            'buildingUsage',
-            'buildingScale',
-            'buildingFloor',
-            'projectTime',
-            'projectCompletionTime',
-            'projectInitialDesignTime'
-        ];
-
-        const fieldMapping = {
-            buildingName: '建筑名称',
-            projectName: '项目名称',
-            projectTime: '项目时间',
-            projectCompletionTime: '竣工时间',
-            buildingUsage: '建筑用途',
-            buildingFloor: '建筑楼层',
-            projectInitialDesignTime: '初始设计时间'
-        };
-
-        // 按照指定顺序转换数据
-        const formattedData = fieldOrder.map((key, index) => {
-            if (key === 'buildingScale') {
-                return {
-                    key: String(index + 1),
-                    label: '建筑规模',
-                    children: <span style={{ whiteSpace: 'normal' }}>{`${rawData[0].buildingScale}${rawData[0].buildingScale2}平方米`}</span>
-                };
-            }
-            if (key === 'buildingScale2') return null;
-
-            return {
-                key: String(index + 1),
-                label: fieldMapping[key] || key,
-                children: <span style={{ whiteSpace: 'normal' }}>{rawData[0][key]}</span>
-            };
-        }).filter(Boolean);
-
-        setBuildingInfo(formattedData);
-    };
 
     // 修改generateMenuItems函数以包含所有层级
     const generateMenuItems = () => {
@@ -364,7 +490,7 @@ const Main1 = () => {
                             fontWeight: 'bold',
                             color: 'rgba(255, 255, 255, 1)'
                         }}>
-                            南京大学空间数据资产平台
+                            南京大学校园空间协同管理决策辅助系统
                         </span>
                     </div>
 
@@ -420,11 +546,13 @@ const Main1 = () => {
                         items={generateMenuItems()}
                     />
                 </Sider>
+                {/* 建筑基本信息 */}
                 {draggableTableControls.roomInfo && (
                     <div style={{ position: 'absolute', zIndex: 1000 }}>
                         <DraggableTable
                             dataSource={buildingInfo}
                             defaultPosition={{ x: 20, y: 20 }}
+                            columnnumber={1}
                             style={{ minWidth: '600px' }}
                             title={
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -443,6 +571,89 @@ const Main1 = () => {
                                 </div>
                             }
                         />
+                   
+                    </div>
+                )}
+                {draggableTableControls.buildingachive && (
+                    <div style={{ position: 'absolute', zIndex: 1000 }}>
+                        <DraggableData
+                            dataSource={buildingachive}
+                            columns={TABLE_COLUMNS}
+                            onDataChange={(newData) => {
+                                console.log(newData);
+                                setBuildingachive(newData);
+                                // 可以在这里进行其他操作，如保存到后端
+                            }}
+                            defaultPosition={{ x: 700, y:300 }}  
+                            title={
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span>房屋档案</span>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        onClick={() => setDraggableTableControls(prevState => ({
+                                            ...prevState,
+                                           buildingachive: !prevState.buildingachive    
+                                        }))}
+                                        style={{ padding: '4px' }}
+                                    >
+                                        ✕
+                                    </Button>
+                                </div>
+                            }
+                        />
+                    </div>
+                )}
+                {draggableTableControls.deviceInfo && (
+                    <div style={{ position: 'absolute', zIndex: 1000 }}>
+                        <DraggableData
+                            dataSource={deviceInfo}
+                            columns={TABLE_COLUMNS_DEVICE}  
+                            defaultPosition={{ x: 20, y: 20 }}
+                            style={{ minWidth: '600px' }}
+                            
+                            title={
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>设备信息</span>
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    onClick={() => setDraggableTableControls(prevState => ({
+                                        ...prevState,
+                                       deviceInfo: !prevState.deviceInfo    
+                                    }))}
+                                    style={{ padding: '4px' }}
+                                >
+                                    ✕
+                                </Button>
+                            </div>
+                            }   
+                        />
+                    </div>
+                )}
+                {draggableTableControls.electricShutter && (
+                    <div style={{ position: 'absolute', zIndex: 1000 }}>
+                      <DraggableTable
+                        dataSource={ELECTRIC_SHUTTER_DATA}
+                        defaultPosition={{ x: 20, y: 20 }}
+                        style={{ minWidth: '1000px' }}
+                        columnnumber={2}
+                        title={
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>配电信息</span>
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    onClick={() => setDraggableTableControls(prevState => ({
+                                        ...prevState,
+                                      electricShutter: !prevState.electricShutter    
+                                    }))}
+                                    style={{ padding: '4px' }}
+                                >
+                                    ✕
+                                </Button>
+                            </div>
+                        }></DraggableTable>
                     </div>
                 )}
 

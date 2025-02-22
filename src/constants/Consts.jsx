@@ -1,4 +1,5 @@
 import {  AppstoreOutlined } from '@ant-design/icons';
+import { Table,Button } from 'antd';
 export const LEVELS = ['campus', 'plot', 'building', 'floor', 'room']; 
 
 export const TOP_MENU_ITEMS = [
@@ -138,45 +139,145 @@ export const SIDE_MENU_ITEMS = [
 ];
 export const TABLE_COLUMNS = [
     {
-        title: '楼宇名称',
-        dataIndex: 'buildingName',
-        key: 'buildingName',
+        title: '房间号',
+        dataIndex: 'roomNumber',
+        key: 'roomNumber',
     },
     {
-        title: '建设项目名称',
-        dataIndex: 'projectName',
-        key: 'projectName',
+        title: '房间用途',
+        dataIndex: 'roomUsage',
+        key: 'roomUsage',
     },
     {
-        title: '项目建设时间',
-        dataIndex: 'projectTime',
-        key: 'projectTime',
+        title: '使用部门',
+        dataIndex: 'useDepartment',
+        key: 'useDepartment',
     },
     {
-        title: '项目竣工时间',
-        dataIndex: 'projectCompletionTime',
-        key: 'projectCompletionTime',
+        title: '使用面积',
+        dataIndex: 'useArea',
+        key: 'useArea',
     },
     {
-        title: '建筑用途',
-        dataIndex: 'buildingUsage',
-        key: 'buildingUsage',
+        title: '实际用途',
+        dataIndex: 'actualUsage',
+        key: 'actualUsage',
     },
     {
-        title: '规模',
-        dataIndex: 'buildingScale   ',
-        key: 'buildingScale',
-        colSpan: 2,
+        title: '建设时间',
+        dataIndex: 'buildingTime',  
+        key: 'buildingTime',
     },
     {
-        title: '层数',
-        dataIndex: 'buildingFloor',
-        key: 'buildingFloor',
+        title: '消防设施合规性',
+        dataIndex: 'fireFacilityCompliance',
+        key: 'fireFacilityCompliance',
     },
     {
-        title: '项目初始设计时间',
-        dataIndex: 'projectInitialDesignTime',
-        key: 'projectInitialDesignTime',
+        title: '消防风险提示',
+        dataIndex: 'fireRiskTips',
+        key: 'fireRiskTips',
+    },
+    {
+        title: '运维标准状态',
+        dataIndex: 'maintenanceStandardStatus',
+        key: 'maintenanceStandardStatus',
+    },
+    {
+        title: '现场审核',
+        dataIndex: 'siteAudit',
+        key: 'siteAudit',
+        width: 150,
+    },
+    
+    
+]
+export const TABLE_COLUMNS_DEVICE = [
+    {
+        title: '房间号',
+        dataIndex: 'roomNumber',
+        key: 'roomNumber',
+    },
+    {
+        title: '电动遮阳页',
+        dataIndex: 'electricShutter',
+        key: 'electricShutter',
+    },
+    {
+        title: '教室照明灯',
+        dataIndex: 'classroomLighting',
+        key: 'classroomLighting',
+    },
+    {
+        title: '黑板灯',
+        dataIndex: 'blackboardLight',
+        key: 'blackboardLight',
+    }
+    
+]
+export const TABLE_COLUMNS_DEVICESERIVE = [
+    {
+        title: '列项',
+        dataIndex: 'item',
+        key: 'item',
+    },
+    {
+        title: '电动遮阳页',
+        dataIndex: 'electricShutter',
+        key: 'electricShutter',
+    },
+    {
+        title: '教室照明灯',
+        dataIndex: 'classroomLighting',
+        key: 'classroomLighting',
+    },
+    {
+        title: '黑板灯',
+        dataIndex: 'blackboardLight',
+        key: 'blackboardLight',
+    }
+    
+]
+const type = [
+    {
+        label: '变电所名称',
+        children: '蒙民伟楼变电所',
+    },
+
+]
+const columns = [
+    {
+        title: '变压器名称',
+        dataIndex: 'name',
+        key: 'name',
+    },
+    {
+        title: '负载率',
+        dataIndex: 'loadRate',
+        key: 'loadRate',
+    },
+    {
+        title: '年份',
+        dataIndex: 'year',
+        key: 'year',
     },
     
 ]
+const dataSource = [
+    { name: '变压器1', year: '2020',loadRate: '10%' },
+    { name: '变压器2', year: '2021',loadRate: '20%' },
+    { name: '变压器3', year: '2022',loadRate: '30%' },
+]
+export const ELECTRIC_SHUTTER_DATA = [
+    { label: '变电所名称', children: '蒙民伟楼变电所',span:2 },
+    { label: '变电所位置', children: '蒙民伟楼地下二层',span:2 },
+    { label: '建设投运时间', children: '2003年6月',span:2 },
+    { label: '总装机容量', children: '2*1600KVA',span:2 },
+    { label: '变压器历史最高负载率', children: <Table columns={columns} dataSource={dataSource} pagination={false}></Table>},
+    {label:'溯源表格',children: <Button  type="link"> 无权限查看</Button>},
+    { label: '主要元器件大修情况', children: '无'},
+    { label: '改造大修时间', children: '无'},
+    { label: '变电所下级配电间', children: '蒙民伟楼地下两层~地上27层合计29间',span:2},
+]
+
+
