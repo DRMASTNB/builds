@@ -47,7 +47,7 @@ const DraggableTable = ({
                     boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                     zIndex: 1000,
                     width: 'auto',
-                    minWidth: '1000px',
+                    minWidth: '700px',
                     
                 }}
             >

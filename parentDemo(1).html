@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>父页面</title>
+</head>
+
+<body>
+  <button onclick="handleEvent()">向子页面发送信息</button>
+  <p>我是父页面</p>
+  <iframe src="http://192.168.0.201:8080/" id="if" width="1920px" height="1080px"></iframe>
+  <script>
+    function handleEvent() {
+      // iframe的id
+      var id = document.getElementById('if');
+      // 触发子页面的监听事件
+      id.contentWindow.postMessage({
+        cmdCode:424,
+        targetCode:'MCYB_A02.01_C3_Z2/MCYB_A02.03_C3_L10',
+        params:{
+          targetIds:['MCYB_A02.01_C3_Z2/MCYB_A02.03_C3_L10'],
+        }
+      }, '*');
+
+      // 父页面发子页面的消息体格式
+      // id.contentWindow.postMessage({
+      //   cmdCode:302,
+      //   targetCode:'',
+      //   params:{}
+      // }, '*');
+    }
+
+    // 注册消息事件监听，接受子元素给的数据
+    window.addEventListener('message', (e) => {
+
+      // 父页面收到子页面的消息体格式
+      // {
+      //     source: 'pickLabel',
+      //     targetCode: e.id,
+      //     extraParam: {}
+      //   }
+      alert( e.data );
+    }, false);
+  </script>
+</body>
+
+</html>

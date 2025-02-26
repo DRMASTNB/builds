@@ -4,7 +4,7 @@ import {  UserOutlined } from '@ant-design/icons';
 import backgroundImage from '../assets/LoginBackground2.jpg';
 import logo2 from "../assets/Dplogo.png";
 import Scene3D from '../components/Scene3D.jsx'
-import { LEVELS, TOP_MENU_ITEMS, TABLE_COLUMNS, TABLE_COLUMNS_DEVICE, TABLE_COLUMNS_DEVICESERIVE,ELECTRIC_SHUTTER_DATA } from '../constants/Consts';
+import { LEVELS, TOP_MENU_ITEMS, TABLE_COLUMNS, TABLE_COLUMNS_DEVICE, ELECTRIC_SHUTTER_DATA } from '../constants/Consts';
 import DraggableTable from '../components/DraggableTable';
 import DraggableData from '../components/DraggableData';
 import { useNavigate } from "react-router-dom";
@@ -36,21 +36,17 @@ const Main1 = () => {
         floors: [],     // 楼层列表
         rooms: []       // 房间列表
     });
-    const electricShutterData = [
-        { label: '变电所名称', value: '某民伴建变电所', isTitle: true },
-        { label: '变电所位置', value: '某民伴建地下二层' },
-        { label: '建设投运时间', value: '2003年6月' },
-        { label: '变压器容量', value: '2*1600KVA' },
-        { label: '变压器历史', value: '1号变：79% 2021年\n2号变：63% 2020年', highlight: true },
-        { label: '主要元器件', value: '改造大修情况' },
-        { label: '变电所下游站点', value: '某民伴建地下网层-地上27层合计29层' }
-    ];
-    
+    const sendMessageToIframe = (message) => {
+        const iframe = document.querySelector('iframe');
+        if (iframe) {
+            iframe.contentWindow.postMessage(message, '*'); // 生产环境建议指定具体域名
+        }
+    };
 
     // 处理菜单项选择
     const handleMenuSelect = async ({ key }) => {
         const [level, value] = key.split('-');
-        let mockPlots, mockBuildings, mockFloors, mockRooms;
+        let mockPlots, mockBuildings, mockFloors;
 
         setSelectedItems(prev => ({
             ...prev,
@@ -79,19 +75,14 @@ const Main1 = () => {
                     break;
                 case 'building':
                     mockFloors = [
-                        { id: 'floor1', name: '1F' },
-                        { id: 'floor2', name: '2F' },
-                        { id: 'floor3', name: '3F' }
+                        { id: 'L1', name: '1F' },
+                        { id: 'L2', name: '2F' },
+                        { id: 'L3', name: '3F' },
+                        { id: 'L7', name: '7F' }
                     ];
                     setMenuData(prev => ({ ...prev, floors: mockFloors, rooms: [] }));
                     break;
                 case 'floor':
-                    mockRooms = [
-                        { id: 'room101', name: '101' },
-                        { id: 'room102', name: '102' },
-                        { id: 'room103', name: '103' }
-                    ];
-                    setMenuData(prev => ({ ...prev, rooms: mockRooms }));
                     break;
             }
         } catch (error) {
@@ -266,6 +257,15 @@ const Main1 = () => {
                     ...prev,
                     roomInfo: !prev.roomInfo
                 }));
+                if(selectedItems.building!=null){
+                    sendMessageToIframe({
+                        cmdCode:406,
+                        targetCode:"MCYB_A02.01_C3_Z1",
+                        params:{
+                          targetIds:["MCYB_A02.01_C3_Z1"]
+                        }
+                    });
+                }
                 break;
             case 'archive-1-2':
                 fetchBuildingInfo();

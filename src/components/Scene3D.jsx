@@ -12,25 +12,16 @@ import { LEVELS } from '../constants/Consts';
 import DraggableTable from './DraggableTable';
 // 图片映射配置
 const IMAGES = {
-    campus: {
-        '2d': campus2d,
-        '3d': campus3d,
-    },
-    plot: {
-        '2d': plot2d,
-        '3d': plot3d,
-    },
-    building: {
-        '2d': building2d,
-        '3d': building3d,
-    }
+    campus: campus2d,
+    plot: plot2d,
+    building: building2d,
 };
-
+const aIndex='MCYB_A02.01_C3_Z1'
+const bIndex='MCYB_A02.03_C3'
+const cIndex='MCYB_A02.04'
 
 
 const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
-    const sceneRef = useRef(null);
-    const web3dRef = useRef(null);
     const [showScene, setShowScene] = useState(false);
     const [is3DView, setIs3DView] = useState(false);
     const [tableData, setTableData] = useState([]);
@@ -45,7 +36,7 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
         if (currentLevel === 'floor' || currentLevel === 'room') {
             return null;
         }
-        return IMAGES[currentLevel][is3DView ? '3d' : '2d'];
+        return IMAGES[currentLevel];
     };
 
     // 修改处理双击事件
@@ -77,129 +68,114 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
     };
 
     // 清空标签
-    const clearLabelHandler = () => {
-        if (web3dRef.current) {
-            web3dRef.current.clear3DLabel();
+    
+
+    // 添加消息处理函数
+    useEffect(() => {
+        const handleMessage = (event) => {
+            // 验证消息来源
+            // if (event.origin !== "允许的域名") return;
+            
+            // 处理来自 iframe 的消息
+            const message = event.data;
+            console.log('收到消息：', message);
+
+            // 根据消息类型处理不同的场景
+            if (message.type === 'ROOM_SELECTED') {
+                setIsRoomLevel(true);
+                setCurrentLevel('room');
+                fetchTableData(message.roomName);
+                setShowDraggableTable(true);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
+    // 向 iframe 发送消息的函数
+    const sendMessageToIframe = (message) => {
+        const iframe = document.querySelector('iframe');
+        if (iframe) {
+            iframe.contentWindow.postMessage(message, '*'); // 生产环境建议指定具体域名
         }
     };
 
-    // 批量添加标签
-    const addLabelHandler = () => {
-        if (web3dRef.current) {
-            web3dRef.current.addLabels(spaceLabel);
-        }
-    };
 
-    // 返回主视角（楼层层级）
-    const switchDefaultView = () => {
-        if (web3dRef.current) {
-            clearLabelHandler();
-            web3dRef.current.switchDefaultView();
-            setIsRoomLevel(false);
-            setCurrentLevel('floor');
-        }
-    };
-
-    // 处理标签点击事件
-    const handleLabelClick = (e) => {
-        setIsRoomLevel(true);
-        setCurrentLevel('room');
-        const roomName = e.name;
-        fetchTableData(roomName);
-        setShowDraggableTable(true);
-    };
 
     // 监听 currentLevel 的变化
     useEffect(() => {
+        console.log(selectedItems)
+
         // 如果切换到非楼层和房间层级，关闭3D场景
         if (!['floor', 'room'].includes(currentLevel)) {
             setShowScene(false);
             setIsRoomLevel(false);
-            if (web3dRef.current) {
-                clearLabelHandler();
-            }
+        }
+        if(currentLevel === 'campus'){
+            sendMessageToIframe({
+                cmdCode:406,
+                targetCode:'MCYB_A00_Z1',
+                params:{
+                  targetIds:['MCYB_A00_Z1']
+                }
+              });
+            setIs3DView(true)
         }
 
         // 如果切换到楼层层级，显示3D场景并重置房间状态
         if (currentLevel === 'floor') {
+            var targetId = aIndex+'/'+bIndex+'_'+selectedItems.floor
             setShowScene(true);
             setIsRoomLevel(false);
-            if (web3dRef.current) {
-                clearLabelHandler();  // 清空标签
-                web3dRef.current.switchDefaultView();
-                // 不再自动添加标签
-            }
+            sendMessageToIframe({
+                cmdCode:406,
+                targetCode:targetId,
+                params:{
+                  targetIds:[targetId]
+                }
+              });
+        }
+        if(currentLevel === 'building'){
+            sendMessageToIframe({
+                cmdCode:406,
+                targetCode:'MCYB_A02.01_C3_Z1',
+                params:{
+                  targetIds:['MCYB_A02.01_C3_Z1']
+                }
+              });
+            setShowScene(true);
+            setIsRoomLevel(true);
         }
 
         // 如果直接通过侧边栏选择房间
         if (currentLevel === 'room' && selectedItems.room) {
             setShowScene(true);
             setIsRoomLevel(true);
-            if (web3dRef.current) {
-                const roomLabel = spaceLabel.find(label =>
-                    label.name === selectedItems.room ||
-                    label.label.text === selectedItems.room
-                );
-
-                if (roomLabel) {
-                    web3dRef.current.performAction([{ id: roomLabel.id }], 'focus', {
-                        focusView: roomLabel.cameraPosition
-                    }, () => {
-                        clearLabelHandler();
-                        addLabelHandler();  // 只在聚焦房间时添加标签
-                        handleLabelClick({ label: roomLabel.name });
-                    });
+            var targetRoomId = aIndex+'/'+bIndex+'_'+selectedItems.floor+'/'+cIndex+'_'+selectedItems.room
+            sendMessageToIframe({
+                cmdCode:406,
+                targetCode:targetRoomId,
+                params:{
+                  targetIds:[targetId]
                 }
-            }
+              });
         }
     }, [currentLevel, selectedItems]);
 
-    // 处理3D场景初始化
-    useEffect(() => {
-        if (showScene && window.Web3D && window.jQuery) {
-            web3dRef.current = new window.Web3D('yb-park-scene', {
-                scene: sceneConfig,
-                systemConfig: systemConfig,
-                pickLabelAction: handleLabelClick,
-                pickAction: (e) => {
-                    if (e?.modelId) {
-                        web3dRef.current.performAction([{ id: e.modelId }], 'focus', {
-                            focusView: {
-                                position: {
-                                    x: 19.245192603628176,
-                                    y: 90.00000021917313,
-                                    z: 208.7808538821296
-                                },
-                                target: {
-                                    x: 19.245192603628176,
-                                    y: 36.00000021920013,
-                                    z: 208.7807998821296
-                                }
-                            }
-                        }, () => {
-                            clearLabelHandler();
-                            addLabelHandler();  // 只在点击模型时添加标签
-                        });
-                    }
-                },
-                loadedAction: () => {
-                    console.log('场景加载完成');
-                    clearLabelHandler();  // 确保初始化时没有标签
-                }
-            });
-            window.web3d = web3dRef.current;
-        }
-
-        // 组件卸载时清理
-        return () => {
-            if (web3dRef.current) {
-                clearLabelHandler();
-            }
-        };
-    }, [showScene]);
-
     const toggleView = () => {
         setIs3DView(!is3DView);
+        if(currentLevel === 'building'){
+            console.log('已发送')
+            sendMessageToIframe({
+                cmdCode:406,
+                targetCode:'MCYB_A02.01_C3_Z1',
+                params:{
+                  targetIds:['MCYB_A02.01_C3_Z1']
+                }
+              });
+        }
+
     };
     
     const fetchTableData = (roomName) => {
@@ -239,29 +215,33 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
     };
 
 
-    // 如果是楼层或房间层级，显示3D场景
-    if (currentLevel === 'floor' || currentLevel === 'room' || showScene) {
+    // 如果是楼层或房间层级，或者是3D视图，显示3D场景
+    if (currentLevel === 'floor' || currentLevel === 'room' || is3DView) {
         return (
             <div style={{ display: 'flex', height: '100%' }}>
                 <div style={{ flex: 1, position: 'relative' }}>
-                    <div
-                        id="yb-park-scene"
-                        ref={sceneRef}
-                        style={{ width: '100%', height: '100%' }}
-                    />
-                    {isRoomLevel && (
-                        <Button
-                            style={{
-                                position: 'absolute',
-                                top: '20px',
-                                left: '20px',
-                                zIndex: 1000
-                            }}
-                            onClick={switchDefaultView}
-                        >
-                            返回楼层视图
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '10px',
+                        position: 'absolute',
+                        top: '20px',
+                        right: '20px',
+                        zIndex: 1000
+                    }}>
+                        <Button onClick={toggleView}>
+                            {is3DView ? '2D' : '3D'}
                         </Button>
-                    )}
+                    </div>
+                    <iframe 
+                        src="http://localhost:8080"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            border: 'none'
+                        }}
+                    />
+                   
                     {showDraggableTable && (
                         <DraggableTable
                             dataSource={tableData}
@@ -281,22 +261,21 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
                             }
                         />
                     )}
-                 
                 </div>
             </div>
         );
     }
 
-    // 修改返回图片视图的部分
+    // 2D图片视图
     return (
         <div style={{ display: 'flex', height: '100%', position: 'relative', justifyContent: 'center'}}>
             <div style={{ 
                 flex: 1, 
                 position: 'relative', 
                 overflow: 'hidden',
-                display: 'flex',  // 添加 flex 布局
-                justifyContent: 'center',  // 水平居中
-                alignItems: 'center'  // 垂直居中
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
             }}>
                 <img
                     src={getCurrentImage()}
@@ -310,7 +289,6 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
                         transform: `scale(${zoomLevel})`,
                         transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
                         opacity: isTransitioning ? 0 : 1
-                        // 移除了多余的 justifyContent
                     }}
                     onDoubleClick={handleDoubleClick}
                 />
