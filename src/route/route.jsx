@@ -3,7 +3,7 @@ import {createBrowserRouter, createRoutesFromElements, Navigate, Route,} from "r
 import {HomeWrapper} from "../components/HomeWrapper.jsx";
 import User from "../views/User.jsx";
 import Login1 from '../views/Login1';
-
+import Register from '../views/Register';
 // 添加这行导入语句
 import { DepartmentSelect } from "../views/DepartmentSelect.jsx";
 
@@ -19,5 +19,6 @@ export const router = createBrowserRouter(
         <Route path="/home" element={<HomeWrapper/>}/>,
         <Route path="/user" element={<User/>}/>,
         <Route path="/login1" element={<Login1/>}/>,
+        <Route path="/register" element={<Register />} />
     ]),
 );

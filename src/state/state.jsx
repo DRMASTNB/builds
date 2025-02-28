@@ -6,11 +6,22 @@ const now = dayjs();
 
 export const useUserStore = create((set) => ({
     username: sessionStorage.getItem('username') || '',
-    setUsername: (username) => set({username}),
+    setUsername: (username) => {
+        sessionStorage.setItem('username', username);
+        set({username});
+    },
     password: '',
     setPassword: (password) => set({password}),
     userRole: sessionStorage.getItem('userRole') || '',
-    setUserRole: (userRole) => set({userRole}),
+    setUserRole: (userRole) => {
+        sessionStorage.setItem('userRole', userRole);
+        set({userRole});
+    },
+    clearUser: () => {
+        sessionStorage.removeItem('username');
+        sessionStorage.removeItem('userRole');
+        set({ username: '', password: '', userRole: '' });
+    }
 }));
 
 export const useNewsSelectStore = create((set) => ({
@@ -24,20 +35,36 @@ export const useNewsSelectStore = create((set) => ({
     setSource: (source) => set({source}),
 }))
 
-
 export const useTokenStore = create((set) => ({
     tokenName: sessionStorage.getItem('tokenName') || '',
-    setTokenName: (tokenName) => set({tokenName}),
+    setTokenName: (tokenName) => {
+        sessionStorage.setItem('tokenName', tokenName);
+        set({tokenName});
+    },
     tokenValue: sessionStorage.getItem('tokenValue') || '',
-    setTokenValue: (tokenValue) => set({tokenValue}),
+    setTokenValue: (tokenValue) => {
+        sessionStorage.setItem('tokenValue', tokenValue);
+        set({tokenValue});
+    },
+    clearToken: () => {
+        sessionStorage.removeItem('tokenName');
+        sessionStorage.removeItem('tokenValue');
+        set({ tokenName: '', tokenValue: '' });
+    }
 }));
-
 
 // 用于判断是否登录
 export const isLogin = () => {
     const tokenName = useTokenStore.getState().tokenName;
     const tokenValue = useTokenStore.getState().tokenValue;
-    return true;
+    const username = useUserStore.getState().username;
+    return Boolean(tokenName && tokenValue && username);
+}
+
+// 用于登出
+export const logout = () => {
+    useUserStore.getState().clearUser();
+    useTokenStore.getState().clearToken();
 }
 
 

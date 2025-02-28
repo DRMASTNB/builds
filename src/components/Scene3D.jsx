@@ -234,7 +234,7 @@ const Scene3D = ({ currentLevel, setCurrentLevel, selectedItems}) => {
                         </Button>
                     </div>
                     <iframe 
-                        src="http://localhost:8080"
+                        src="http://localhost:8081"
                         style={{
                             width: '100%',
                             height: '100%',

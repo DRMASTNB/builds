@@ -8,6 +8,7 @@ import { LEVELS, TOP_MENU_ITEMS, TABLE_COLUMNS, TABLE_COLUMNS_DEVICE, ELECTRIC_S
 import DraggableTable from '../components/DraggableTable';
 import DraggableData from '../components/DraggableData';
 import { useNavigate } from "react-router-dom";
+import { requestGetBuildingInfo, requestGetRoomInfo, requestFloorInfo, requestGetDeviceInfo } from '../axios/api.jsx';
 const { Sider, Content } = Layout;
 
 const Main1 = () => {
@@ -80,6 +81,8 @@ const Main1 = () => {
                         { id: 'L3', name: '3F' },
                         { id: 'L7', name: '7F' }
                     ];
+                    requestGetBuildingInfo(1,4)
+                    // 模拟数据了，这边需要修改
                     setMenuData(prev => ({ ...prev, floors: mockFloors, rooms: [] }));
                     break;
                 case 'floor':
@@ -105,9 +108,16 @@ const Main1 = () => {
         };
     };
     const fetchBuildingachive = () => {
-        // requestGetLandInfo(selectedItems.building, 0).then(res => {
-        //     console.log(res);
+        var roomInfos=[];
+        const rooms= requestFloorInfo(1);
+        // 遍历rooms，获取每个房间的房间信息
+        // rooms.map(room=>{
+        //     const response= requestGetRoomInfo(room.id,0);
+        //     roomInfos.push(response);
         // });
+        // console.log(roomInfos);
+        const response= requestGetRoomInfo(1,0);
+        console.log(response);
         const rawData = [
             {
                 roomNumber: '1',
@@ -143,9 +153,8 @@ const Main1 = () => {
         }
     };
     const fetchBuildingInfo = () => {
-        // requestGetBuildingInfo(selectedItems.building, 0).then(res => {
-        //     console.log(res);
-        // });
+       const response=requestGetBuildingInfo(1, 0);
+       console.log(response);
         const rawData = [
             {
                 buildingName: '蒙民维楼',
@@ -212,9 +221,9 @@ const Main1 = () => {
         setBuildingInfo(formattedData);
     };
     const fetchDeviceInfo = () => {
-        // requestGetDeviceInfo(selectedItems.building, 0).then(res => {
-        //     console.log(res);
-        // });
+        // 获取设备信息
+        const response= requestGetDeviceInfo(1);
+        console.log(response);
         const rawData = [
             {
                 roomNumber: '1',
@@ -582,7 +591,7 @@ const Main1 = () => {
                             onDataChange={(newData) => {
                                 console.log(newData);
                                 setBuildingachive(newData);
-                                // 可以在这里进行其他操作，如保存到后端
+                                
                             }}
                             defaultPosition={{ x: 700, y:300 }}  
                             title={

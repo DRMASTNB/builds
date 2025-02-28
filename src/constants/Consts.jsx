@@ -177,17 +177,19 @@ export const TABLE_COLUMNS = [
         title: '消防风险提示',
         dataIndex: 'fireRiskTips',
         key: 'fireRiskTips',
+        editable: true 
     },
     {
         title: '运维标准状态',
         dataIndex: 'maintenanceStandardStatus',
         key: 'maintenanceStandardStatus',
+        ditable: true 
     },
     {
         title: '现场审核',
         dataIndex: 'siteAudit',
         key: 'siteAudit',
-        width: 150,
+        editable: true,
     },
     
     

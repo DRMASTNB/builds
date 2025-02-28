@@ -3,7 +3,7 @@ import {isLogin, useTokenStore} from "../state/state.jsx";
 
 const api = axios.create({
     // Don't change
-    baseURL: import.meta.env.VITE_BACKEND_URL,
+    baseURL: 'http://localhost:8080',
     timeout: 30000,
 });
 
@@ -12,11 +12,14 @@ api.interceptors.request.use(function (config) {
     // 在发送请求之前添加 token 到请求头
     if (isLogin()) {
         const tokenName = useTokenStore.getState().tokenName;
-        config.headers[`${tokenName}`] = useTokenStore.getState().tokenValue;
+        // 添加判断，确保 tokenName 不为空
+        if (tokenName && tokenName.trim()) {
+            config.headers[tokenName] = useTokenStore.getState().tokenValue;
+        }
     }
     return config;
 }, function (error) {
-    // 请求错误时的处理
+    console.log('请求拦截器错误:', error);
     return Promise.reject(error);
 });
 
@@ -28,36 +31,58 @@ api.interceptors.request.use(function (config) {
  * @returns {Promise} 返回包含登录结果的Promise对象，成功时包含token信息
  */
 export const requestLogin = ({userAccount, userPassword}) => {
-    return api.post('/user/doLogin', {
-        userAccount: userAccount,
-        userPassword: userPassword,
+    console.log('开始执行登录请求函数');
+    console.log('请求参数:', {userAccount, userPassword});
+    
+    try {
+        console.log('即将发送请求...');
+        return api.post('/api/users/login', {
+            username: userAccount,
+            password: userPassword,
+        }).then(response => {
+            console.log('收到响应:', response.data);
+            const token = response.data.data.token; 
+            console.log("token: ", token);
+            const setTokenName = useTokenStore.getState().setTokenName;
+            const setTokenValue = useTokenStore.getState().setTokenValue;
+
+            // 使用固定的 tokenName
+            setTokenName('Authorization');
+            setTokenValue(`Bearer ${token}`); 
+            sessionStorage.setItem('tokenName', 'Authorization');
+            sessionStorage.setItem('tokenValue', `Bearer ${token}`);
+            sessionStorage.setItem('username', userAccount);
+            sessionStorage.setItem('userRole', response.data.data.userRole);
+
+            return response;
+        }).catch((error) => {
+            console.error('请求错误:', error);
+            // 打印更完整的错误信息
+            if (error.response) {
+                console.error('错误响应数据:', error.response.data);
+                console.error('错误状态码:', error.response.status);
+            } else if (error.request) {
+                console.error('请求已发送但没有收到响应');
+                console.error(error.request);
+            } else {
+                console.error('请求配置错误:', error.message);
+            }
+            return error.response;
+        });
+    } catch (error) {
+        console.error('请求执行异常:', error);
+        return Promise.reject(error);
+    }
+}
+export const requestRegister = ({userAccount, userPassword, roleIds}) => {
+    console.log(userAccount, userPassword, roleIds);
+    return api.post('/api/users/register', {
+        username: userAccount,
+        password: userPassword,
+        roleIds: roleIds
     }).then(response => {
-        // 拦截返回值，保存 tokenName 和 tokenValue
-        const tokenName = response.data.data.tokenName;
-        const tokenValue = response.data.data.tokenContent;
-        console.log("tokenName: ", tokenName);
-        console.log("tokenValue: ", tokenValue);
-
-        const setTokenName = useTokenStore.getState().setTokenName;
-        const setTokenValue = useTokenStore.getState().setTokenValue;
-
-        setTokenName(tokenName);
-        setTokenValue(tokenValue);
-        sessionStorage.setItem('tokenName', tokenName);
-        sessionStorage.setItem('tokenValue', tokenValue);
-
-        console.log(response);
         return response;
-    }).then(response => {
-        const tokenName = useTokenStore.getState().tokenName;
-        const tokenValue = useTokenStore.getState().tokenValue;
-        console.log('tokenName: ', tokenName);
-        console.log('tokenValue: ', tokenValue);
-        return response;
-    }).catch((error) => {
-        // const {code, data, message} = error.response.data;
-        // console.log("code data message is " , code, data, message);
-        // console.log(error);
+    }).catch(error => {
         return error.response;
     })
 }
@@ -79,18 +104,33 @@ export const requestGetCampusInfo = (campusId) => {
  *   1: 土地档案信息
  *   2: 地下室信息
  *   3: 用电负荷信息
+ *   4: 楼层数
  *   默认: 文物保护状态
  * @returns {Promise} 返回包含建筑相关信息的Promise对象
  */
 export const requestGetBuildingInfo = (buildingId,buildingType) => {
     if(buildingType == 0){
-        return api.get(`/api/building/?buildingId=${buildingId}/basicInfo`);
+        return api.get(`/api/building/${buildingId}/basicInfo`).then(response=>{
+            return response
+        }).catch(error=>{
+            return error;
+        })  ;
     }else if(buildingType == 1){
-        return api.get(`/api/building/?buildingId=${buildingId}/landArchiesInfo`);
+        return api.get(`/api/building/?buildingId=${buildingId}/landArchiesInfo`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     }else if(buildingType == 2){
         return api.get(`/api/building/?buildingId=${buildingId}/basementInfo`);
     } else if (buildingType == 3) {
         return api.get(`/api/building/?buildingId=${buildingId}/electricalLoad`);
+    } else if (buildingType == 4) {
+        return api.get(`/api/floor/building/${buildingId}`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        })  ;
     }
     return api.get(`/api/building/?buildingId=${buildingId}/heritageStatus`);
 }
@@ -111,19 +151,47 @@ export const requestGetBuildingInfo = (buildingId,buildingType) => {
  */
 export const requestGetRoomInfo = (roomId,roomType) => {
     if(roomType == 0){
-        return api.get(`/api/room/?roomId=${roomId}/basicInfo`);
+        return api.get(`/api/room/${roomId}/details`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     }else if(roomType == 1){
-        return api.get(`/api/room/?roomId=${roomId}/compliance`);
+        return api.get(`/api/room/${roomId}/compliance`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     } else if (roomType == 2) {
-        return api.get(`/api/room/?roomId=${roomId}/currentFunction`);
+        return api.get(`/api/room/${roomId}/currentFunction`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     } else if (roomType == 3) {
-        return api.get(`/api/room/?roomId=${roomId}/fireEquipmentCompliance`);
+        return api.get(`/api/room/${roomId}/fireEquipmentCompliance`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     } else if (roomType == 4) { 
-        return api.get(`/api/room/?roomId=${roomId}/layoutAndDevices`);
+        return api.get(`/api/room/${roomId}/layoutAndDevices`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     } else if (roomType == 5) { 
-        return api.get(`/api/room/?roomId=${roomId}/maintenanceRecords`);
+                return api.get(`/api/room/${roomId}/maintenanceRecords`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     } else if (roomType == 6) {
-        return api.get(`/api/room/?roomId=${roomId}/feedbackAndRepair`);
+        return api.get(`/api/room/${roomId}/feedbackAndRepair`).then(response=>{
+            return response.data;
+        }).catch(error=>{
+            return error.response;
+        });
     } 
     return api.get(`/api/room/?roomId=${roomId}/problemGuidanceAndEvaluation`);
 }
@@ -143,12 +211,15 @@ export const requestGetSubstationInfo = (substationId) => {
  * @returns {Promise} 返回包含设备生命周期和维护信息的Promise对象
  */
 export const requestGetDeviceInfo = (deviceId) => {
-        return api.get(`/api/device/?deviceId=${deviceId}/lifecycleAndMaintenance`); 
+        return api.get(`/api/construction-info/floor/${deviceId}/materials`); 
 }
 
 
-
-
-
-
+export const requestFloorInfo = (floorId) => {
+    return api.get(`/api/floor/${floorId}/rooms`).then(response=>{
+        return response.data;
+    }).catch(error=>{
+        return error.response;
+    });
+}
 

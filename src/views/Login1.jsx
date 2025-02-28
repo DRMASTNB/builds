@@ -4,16 +4,27 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "../state/state.jsx";
 import backgroundImage from '../assets/LoginBackground2.jpg';
 import logo from "../assets/Dplogo.png";
-
+import { requestLogin } from '../axios/api.jsx';
 const Login1 = () => {
     const navigate = useNavigate();
     const setUsername = useUserStore((state) => state.setUsername);
 
-    const onFinish = (values) => {
+    const onFinish = async (values) => {
         console.log('Received values:', values);
         setUsername(values.username);
-        sessionStorage.setItem('username', values.username);
-        navigate('/home');
+        var username = values.username;
+        var password = values.password;
+
+        try {
+            const response = await requestLogin({userAccount: username, userPassword: password});
+            console.log(response);
+            if (response.status === 200) {  // 假设 0 是成功状态码，请根据实际 API 调整
+                navigate('/home');
+            } 
+        } catch (error) {
+            console.error('登录失败:', error);
+            // 这里可以添加错误提示，比如使用 antd 的 message 组件
+        }
     };
 
     return (
@@ -116,6 +127,7 @@ const Login1 = () => {
                         }}>
                             <Link to="/help" style={{ color: 'rgba(255,255,255,0.85)' }}>在线帮助</Link>
                             <Link to="/forgot" style={{ color: 'rgba(255,255,255,0.85)' }}>忘记密码</Link>
+                            <Link to="/register" style={{ color: 'rgba(255,255,255,0.85)' }}>注册账号</Link>
                         </div>
                     </div>
 

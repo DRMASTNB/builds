@@ -8,22 +8,22 @@ class NotificationService {
     }
 
     connect() {
-        const token = sessionStorage.getItem('tokenValue');
-        // 替换为实际的 WebSocket 服务器地址
-        this.ws = new WebSocket(`ws://your-api-domain/ws/notifications?token=${token}`);
+        // const token = sessionStorage.getItem('tokenValue');
+        // // 替换为实际的 WebSocket 服务器地址
+        // this.ws = new WebSocket(`ws://your-api-domain/ws/notifications?token=${token}`);
 
-        this.ws.onmessage = (event) => {
-            const notification = JSON.parse(event.data);
-            this.handlers.forEach(handler => handler(notification));
-        };
+        // this.ws.onmessage = (event) => {
+        //     const notification = JSON.parse(event.data);
+        //     this.handlers.forEach(handler => handler(notification));
+        // };
 
-        this.ws.onclose = () => {
-            this.handleDisconnect();
-        };
+        // this.ws.onclose = () => {
+        //     this.handleDisconnect();
+        // };
 
-        this.ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+        // this.ws.onerror = (error) => {
+        //     console.error('WebSocket error:', error);
+        // };
     }
 
     handleDisconnect() {

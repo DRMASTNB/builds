@@ -5,6 +5,7 @@ import { UserOutlined, BellOutlined, LockOutlined } from "@ant-design/icons";
 import src from "../assets/loginBackground1.jpg";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from '../contexts/NotificationContext';
+import { logout } from "../state/state.jsx";
 
 
 const User = () => {
@@ -28,14 +29,7 @@ const User = () => {
         });
     };
     const onClickLogout = async () => {
-
-        // 清空 sessionStorage 中的数据
-        sessionStorage.removeItem('tokenName');
-        sessionStorage.removeItem('tokenValue');
-        sessionStorage.removeItem('username');
-        sessionStorage.removeItem('userRole');
-        console.log("logout token", sessionStorage.getItem('tokenName'), sessionStorage.getItem('tokenValue'),
-            "\nuser", sessionStorage.getItem('username'), sessionStorage.getItem('userRole'));
+        logout();
         openNotification('退出成功: ', '已返回登录界面')
         navigate("/login1");
     }
@@ -49,10 +43,8 @@ const User = () => {
     } = useNotifications();
     const [form] = Form.useForm();
 
-    // 修改密码
     const handlePasswordChange = async (values) => {
         try {
-            // TODO: 替换为实际的API调用
             const response = await fetch('/api/user/change-password', {
                 method: 'POST',
                 headers: {
