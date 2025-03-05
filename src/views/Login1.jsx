@@ -125,8 +125,7 @@ const Login1 = () => {
                             justifyContent: 'space-between',
                             marginTop: 16
                         }}>
-                            <Link to="/help" style={{ color: 'rgba(255,255,255,0.85)' }}>在线帮助</Link>
-                            <Link to="/forgot" style={{ color: 'rgba(255,255,255,0.85)' }}>忘记密码</Link>
+                            <Link to="/" style={{ color: 'rgba(255,255,255,0.85)' }}>返回部门选择</Link>
                             <Link to="/register" style={{ color: 'rgba(255,255,255,0.85)' }}>注册账号</Link>
                         </div>
                     </div>

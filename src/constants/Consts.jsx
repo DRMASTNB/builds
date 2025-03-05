@@ -6,7 +6,7 @@ export const TOP_MENU_ITEMS = [
     {
         key: 'archive',
         label: <div style={{ width: '120px', textAlign: 'center' }}>
-                 <p style={{ fontSize: "24px", margin: "10px", color: "white" }}>档案信息</p>
+                 <p style={{ fontSize: "20px", margin: "10px", color: "white" }}>档案信息</p>
                </div>,
                children: [
                 { 
@@ -30,7 +30,7 @@ export const TOP_MENU_ITEMS = [
     {
         key: 'function',
         label: <div style={{ width: '120px', textAlign: 'center' }}>
-                 <p style={{ fontSize: "24px", margin: "10px", color: "white" }}>功能用途</p>
+                 <p style={{ fontSize: "20px", margin: "10px", color: "white" }}>功能用途</p>
                </div>,
         children: [
             { key: 'function-1', label: '建筑合规使用性质' },
@@ -49,7 +49,7 @@ export const TOP_MENU_ITEMS = [
     {
         key: 'power',
         label: <div style={{ width: '120px', textAlign: 'center' }}>
-                 <p style={{ fontSize: "24px", margin: "10px", color: "white" }}>配电信息</p>
+                 <p style={{ fontSize: "20px", margin: "10px", color: "white" }}>配电信息</p>
                </div>,
         children: [
             { key: 'power-1', label: '供给接入端' },
@@ -60,7 +60,7 @@ export const TOP_MENU_ITEMS = [
     {
         key: 'construction',
         label: <div style={{ width: '120px', textAlign: 'center' }}>
-                 <p style={{ fontSize: "24px", margin: "10px", color: "white" }}>建设信息</p>
+                 <p style={{ fontSize: "20px", margin: "10px", color: "white" }}>建设信息</p>
                </div>,
         children: [
             { key: 'construction-1', label: '立项信息' },
@@ -78,7 +78,7 @@ export const TOP_MENU_ITEMS = [
     {
         key: 'maintenance',
         label: <div style={{ width: '120px', textAlign: 'center' }}>
-                 <p style={{ fontSize: "24px", margin: "10px", color: "white" }}>运维信息</p>
+                 <p style={{ fontSize: "20px", margin: "10px", color: "white" }}>运维信息</p>
                </div>,
         children: [
             { key: 'maintenance-1', label: '基本运维信息' },
@@ -183,7 +183,7 @@ export const TABLE_COLUMNS = [
         title: '运维标准状态',
         dataIndex: 'maintenanceStandardStatus',
         key: 'maintenanceStandardStatus',
-        ditable: true 
+        editable: true 
     },
     {
         title: '现场审核',
@@ -191,32 +191,156 @@ export const TABLE_COLUMNS = [
         key: 'siteAudit',
         editable: true,
     },
+    {
+        title: '维修记录',
+        dataIndex: 'maintenanceRecord',
+        key: 'maintenanceRecord',
+        editable: true,
+    }
     
     
 ]
 export const TABLE_COLUMNS_DEVICE = [
     {
+        title: '设备ID',
+        dataIndex: 'material_equipment_id',
+        key: 'material_equipment_id',
+    },
+    {
         title: '房间号',
-        dataIndex: 'roomNumber',
-        key: 'roomNumber',
+        dataIndex: 'room_id',
+        key: 'room_id',
     },
     {
-        title: '电动遮阳页',
-        dataIndex: 'electricShutter',
-        key: 'electricShutter',
+        title: '类别',
+        dataIndex: 'category',
+        key: 'category',
     },
     {
-        title: '教室照明灯',
-        dataIndex: 'classroomLighting',
-        key: 'classroomLighting',
+        title: '设备名称',
+        dataIndex: 'material_name',
+        key: 'material_name',
     },
     {
-        title: '黑板灯',
-        dataIndex: 'blackboardLight',
-        key: 'blackboardLight',
-    }
-    
+        title: '数量/面积',
+        dataIndex: 'quantity_or_area',
+        key: 'quantity_or_area',
+    },
+    {
+        title: '技术要求',
+        dataIndex: 'technical_requirements',
+        key: 'technical_requirements',
+    },
+    {
+        title: '施工部门',
+        dataIndex: 'construction_department',
+        key: 'construction_department',
+    },
+    {
+        title: '维护部门',
+        dataIndex: 'maintenance_department',
+        key: 'maintenance_department',
+    },
+    {
+        title: '供应商名称',
+        dataIndex: 'vendor_name',
+        key: 'vendor_name',
+    },
+    {
+        title: '供应商联系方式',
+        dataIndex: 'vendor_contact',
+        key: 'vendor_contact',
+    },
+    {
+        title: '产品成本',
+        dataIndex: 'product_cost',
+        key: 'product_cost',
+    },
+    {
+        title: '安装时间',
+        dataIndex: 'installation_time',
+        key: 'installation_time',
+    },
+    {
+        title: '生命周期预警时间',
+        dataIndex: 'lifecycle_warning_time',
+        key: 'lifecycle_warning_time',
+    },
+    {
+        title: '更换周期（年）',
+        dataIndex: 'replacement_period',
+        key: 'replacement_period',
+    },
+    {
+        title: '质保期',
+        dataIndex: 'warranty_period',
+        key: 'warranty_period',
+    },
+    {
+        title: '产品寿命',
+        dataIndex: 'product_lifespan',
+        key: 'product_lifespan',
+    },
 ]
+export const SAMPLE_EQUIPMENT_DATA = [
+    {
+        material_equipment_id: 1,
+        room_id: 101,
+        category: '建筑材料',
+        material_name: '钢筋',
+        quantity_or_area: '100吨',
+        technical_requirements: '强度≥400MPa',
+        construction_department: '建筑部',
+        maintenance_department: '维护部',
+        vendor_info: '供应商A',
+        product_cost: 50000.0,
+        installation_time: '2023-01-01',
+        lifecycle_warning_time: '2025-01-01',
+        replacement_period: 5,
+        vendor_name: '供应商A',
+        vendor_contact: '13800000000',
+        warranty_period: '2年',
+        product_lifespan: '10年',
+    },
+    {
+        material_equipment_id: 2,
+        room_id: 102,
+        category: '电气设备',
+        material_name: '空调',
+        quantity_or_area: '50台',
+        technical_requirements: '制冷量≥5000W',
+        construction_department: '电气部',
+        maintenance_department: '维护部',
+        vendor_info: '供应商B',
+        product_cost: 200000.0,
+        installation_time: '2023-02-01',
+        lifecycle_warning_time: '2026-02-01',
+        replacement_period: 10,
+        vendor_name: '供应商B',
+        vendor_contact: '13900000000',
+        warranty_period: '3年',
+        product_lifespan: '15年',
+    },
+    {
+        material_equipment_id: 3,
+        room_id: 103,
+        category: '家具',
+        material_name: '桌椅',
+        quantity_or_area: '200套',
+        technical_requirements: '符合人体工学',
+        construction_department: '家具部',
+        maintenance_department: '维护部',
+        vendor_info: '供应商C',
+        product_cost: 80000.0,
+        installation_time: '2023-03-01',
+        lifecycle_warning_time: '2028-03-01',
+        replacement_period: 8,
+        vendor_name: '供应商C',
+        vendor_contact: '13700000000',
+        warranty_period: '2年',
+        product_lifespan: '10年',
+    }
+];
 export const TABLE_COLUMNS_DEVICESERIVE = [
     {
         title: '列项',

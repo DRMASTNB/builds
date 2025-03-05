@@ -8,11 +8,12 @@ import { requestRegister } from '../axios/api.jsx';
 const Register = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
-
+    const departmentName = localStorage.getItem('selectedDepartment')
+    console.log(departmentName);
     const roleOptions = [
-        { value: 1, label: '部门1' },
-        { value: 2, label: '部门2' },
-        { value: 3, label: '部门3' },
+        { value: 7, label: '管理员' },
+        { value: 2, label: '普通教师' },
+        { value: 3, label: '专业学生' },
     ];
 
     const onFinish = async (values) => {
@@ -63,19 +64,34 @@ const Register = () => {
                     textAlign: 'center', 
                     marginBottom: 40,
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
                     gap: '12px'
                 }}>
-                    <img src={logo} alt="南京大学" style={{ height: 40 }} />
-                    <div style={{ 
-                        color: 'white', 
-                        fontSize: '24px',
-                        borderLeft: '1px solid rgba(255,255,255,0.3)',
-                        paddingLeft: '12px'
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '12px'
                     }}>
-                        用户注册
+                        <img src={logo} alt="南京大学" style={{ height: 40 }} />
+                        <div style={{ 
+                            color: 'white', 
+                            fontSize: '24px',
+                            borderLeft: '1px solid rgba(255,255,255,0.3)',
+                            paddingLeft: '12px'
+                        }}>
+                            用户注册
+                        </div>
                     </div>
+                    
+                        <div style={{ 
+                            color: 'rgba(255,255,255,0.85)', 
+                            fontSize: '16px' 
+                        }}>
+                          {departmentName}
+                        </div>
+               
                 </div>
 
                 <Form

@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Layout, Menu, Button, Badge, Space, message } from "antd";
 import {  UserOutlined } from '@ant-design/icons';
 import backgroundImage from '../assets/LoginBackground2.jpg';
 import logo2 from "../assets/Dplogo.png";
 import Scene3D from '../components/Scene3D.jsx'
-import { LEVELS, TOP_MENU_ITEMS, TABLE_COLUMNS, TABLE_COLUMNS_DEVICE, ELECTRIC_SHUTTER_DATA } from '../constants/Consts';
+import { LEVELS, TOP_MENU_ITEMS, TABLE_COLUMNS, TABLE_COLUMNS_DEVICE, ELECTRIC_SHUTTER_DATA,SAMPLE_EQUIPMENT_DATA  } from '../constants/Consts';
 import DraggableTable from '../components/DraggableTable';
 import DraggableData from '../components/DraggableData';
 import { useNavigate } from "react-router-dom";
@@ -46,6 +46,7 @@ const Main1 = () => {
 
     // 处理菜单项选择
     const handleMenuSelect = async ({ key }) => {
+        console.log(key);
         const [level, value] = key.split('-');
         let mockPlots, mockBuildings, mockFloors;
 
@@ -70,7 +71,6 @@ const Main1 = () => {
                 case 'plot':
                     mockBuildings = [
                         { id: 'building1', name: '蒙民伟楼' },
-                        { id: 'building2', name: '楼二' }
                     ];
                     setMenuData(prev => ({ ...prev, buildings: mockBuildings, floors: [], rooms: [] }));
                     break;
@@ -79,9 +79,16 @@ const Main1 = () => {
                         { id: 'L1', name: '1F' },
                         { id: 'L2', name: '2F' },
                         { id: 'L3', name: '3F' },
-                        { id: 'L7', name: '7F' }
+                        { id: 'L4', name: '4F' },
+                        { id: 'L5', name: '5F' },
+                        { id: 'L6', name: '6F' },
+                        { id: 'L7', name: '7F' },
+                        { id: 'L8', name: '8F' },
+                        { id: 'L9', name: '9F' },
+                        { id: 'L10', name: '10F' }
                     ];
-                    requestGetBuildingInfo(1,4)
+                    var response=await requestGetBuildingInfo(2,4)
+                    console.log(response)
                     // 模拟数据了，这边需要修改
                     setMenuData(prev => ({ ...prev, floors: mockFloors, rooms: [] }));
                     break;
@@ -120,31 +127,34 @@ const Main1 = () => {
         console.log(response);
         const rawData = [
             {
-                roomNumber: '1',
-                roomUsage: '无',
-                useDepartment: '无',
-                useArea: '无',
-                actualUsage: '无',
-                buildingTime: '无',
+                roomNumber: '103/104',
+                roomUsage: '教室',
+                useDepartment: '教务处',
+                useArea: '50',
+                actualUsage: '教学',
+                buildingTime: '2001~2003年',
+                fireFacilityCompliance: '合格',
                 siteAudit: '无',
                 
             },
             {
-                roomNumber: '2',
-                roomUsage: '无',
-                useDepartment: '无',
-                useArea: '无',
-                actualUsage: '无',
-                buildingTime: '无',
+                roomNumber: '102',
+                roomUsage: '实验室',
+                useDepartment: '教务处',
+                useArea: '50',
+                actualUsage: '科研',
+                buildingTime: '2001~2003年',
+                fireFacilityCompliance: '合格',
                 siteAudit: '无',
             },
             {
-                roomNumber: '3',
-                roomUsage: '无',
-                useDepartment: '无',
-                useArea: '无',
-                actualUsage: '无',
-                buildingTime: '无',
+                roomNumber: '106',
+                roomUsage: '教室',
+                useDepartment: '教务处',
+                useArea: '50',
+                actualUsage: '教学',
+                buildingTime: '2001~2003年',
+                fireFacilityCompliance: '合格',
                 siteAudit: '无',
             }
         ];
@@ -152,8 +162,8 @@ const Main1 = () => {
             setBuildingachive(rawData);
         }
     };
-    const fetchBuildingInfo = () => {
-       const response=requestGetBuildingInfo(1, 0);
+    const fetchBuildingInfo = async () => {
+       const response= await requestGetBuildingInfo(2, 0);
        console.log(response);
         const rawData = [
             {
@@ -224,25 +234,11 @@ const Main1 = () => {
         // 获取设备信息
         const response= requestGetDeviceInfo(1);
         console.log(response);
-        const rawData = [
-            {
-                roomNumber: '1',
-                electricShutter: '无',
-                classroomLighting: '无',
-                blackboardLight: '无'       
-            },
-            {
-                roomNumber: '2',
-                electricShutter: '无',
-                classroomLighting: '无',
-                blackboardLight: '无'
-            }
-        ];
-        setDeviceInfo(rawData);
+        setDeviceInfo(SAMPLE_EQUIPMENT_DATA);
     
     }
     
-    const MenuItemClick = ({ key }) => {
+    const MenuItemClick = async ({ key }) => {
         // Check current level before processing menu clicks
         if (key.startsWith('archive-') || key.startsWith('power-')) {
             if (!selectedItems.building) {
@@ -258,93 +254,123 @@ const Main1 = () => {
             }
         }
 
-        switch (key) {
-            // 档案信息
-            case 'archive-1-1':
-                fetchBuildingInfo();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    roomInfo: !prev.roomInfo
-                }));
-                if(selectedItems.building!=null){
-                    sendMessageToIframe({
-                        cmdCode:406,
-                        targetCode:"MCYB_A02.01_C3_Z1",
-                        params:{
-                          targetIds:["MCYB_A02.01_C3_Z1"]
-                        }
-                    });
-                }
-                break;
-            case 'archive-1-2':
-                fetchBuildingInfo();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    roomInfo: !prev.roomInfo
-                }));
-                break;
-            case 'archive-1-3':
-                fetchBuildingachive();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    buildingachive: !prev.buildingachive
-                }));
-                break;
-
-            case 'function-1':
-                break;
-            case 'function-2-2':
-                fetchBuildingachive();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    buildingachive: !prev.buildingachive
-                }));
+        try {
+            switch (key) {
+                // 档案信息
+                case 'archive-1-1':
+                    await fetchBuildingInfo();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        roomInfo: !prev.roomInfo
+                    }));
+                    console.log(selectedItems)
+                    if(selectedItems.building!=null){
+                        sendMessageToIframe({
+                            cmdCode:406,
+                            targetCode:"MCYB_A02.01_C3_Z1",
+                            params:{
+                              targetIds:["MCYB_A02.01_C3_Z1"]
+                            }
+                        });
+                    }
                     break;
-            // ... 其他功能用途子项
-            case 'function-2-3':
-                fetchBuildingachive();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    buildingachive: !prev.buildingachive
-                }));
-                break;
-            // 配电信息
-            case 'power-1':
-            case 'power-2':
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    electricShutter: !prev.electricShutter
-                }));
-                break;
+                case 'archive-1-2':
+                    await fetchBuildingInfo();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        roomInfo: !prev.roomInfo
+                    }));
+                    if(selectedItems.building!=null){
+                        sendMessageToIframe({
+                            cmdCode:406,
+                            targetCode:"MCYB_A02.01_C3_Z1",
+                            params:{
+                              targetIds:["MCYB_A02.01_C3_Z1"]
+                            }
+                        });
+                    }
+                    break;
+                case 'archive-1-3':
+                    fetchBuildingachive();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        buildingachive: !prev.buildingachive
+                    }));
+                    break;
 
-            // 建设信息
-            case 'construction-3-1':
-                fetchBuildingachive();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    buildingachive: !prev.buildingachive
-                }));
-                break;
-            case 'construction-3-3':fetchDeviceInfo();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                   deviceInfo: !prev.deviceInfo
-                }));
-                break;
-            case 'construction-3-4':fetchDeviceInfo();
-                setDraggableTableControls(prev => ({
-                    ...prev,
-                    deviceInfo: !prev.deviceInfo
-                }));
-                break;
-            // 运维信息
-            case 'maintenance-1':
-            case 'maintenance-2':
-                break;
+                case 'function-1':
+                    break;
+                case 'function-2-2':
+                    fetchBuildingachive();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        buildingachive: !prev.buildingachive
+                    }));
+                    if(selectedItems.floor!=null){
+                        sendMessageToIframe({
+                            cmdCode:530,
+                            targetCode:"MCYB_A02.01_C3_Z1/MCYB_A02.03_C3_"+selectedItems.floor,
+                            params:{
+                              targetIds:["MCYB_A02.01_C3_Z1/MCYB_A02.03_C3_"+selectedItems.floor]
+                            }
+                        });
+                    }
+                        break;
+                // ... 其他功能用途子项
+                case 'function-2-3':
+                    fetchBuildingachive();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        buildingachive: !prev.buildingachive
+                    }));
+                    break;
+                // 配电信息
+                case 'power-1':
+                case 'power-2':
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        electricShutter: !prev.electricShutter
+                    }));
+                    break;
 
-            default:
-                break;
+                // 建设信息
+                case 'construction-3-1':
+                    fetchBuildingachive();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        buildingachive: !prev.buildingachive
+                    }));
+                    break;
+                case 'construction-3-3':fetchDeviceInfo();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                       deviceInfo: !prev.deviceInfo
+                    }));
+                    break;
+                case 'construction-3-4':fetchDeviceInfo();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        deviceInfo: !prev.deviceInfo
+                    }));
+                    break;
+                // 运维信息
+                case 'maintenance-1':
+                case 'maintenance-2-2':
+                    fetchBuildingachive();
+                    setDraggableTableControls(prev => ({
+                        ...prev,
+                        buildingachive: !prev.buildingachive
+                    }));
 
+                    break;
+
+                default:
+                    break;
+
+            }
+        } catch (error) {
+            console.error('Error in MenuItemClick:', error);
+            message.error('获取数据失败，请稍后重试');
         }
     };
     // 添加处理层级变化的副作用
@@ -358,10 +384,81 @@ const Main1 = () => {
                 newSelectedItems[level] = null;
             }
         });
+        const handleMessage = (event) => {
+
+            // 处理来自 iframe 的消息
+            const message = event.data;
+            var parsedMessage = null
+            try {
+                // 如果消息是字符串，尝试解析为 JSON
+                parsedMessage = typeof message === 'string' ? JSON.parse(message) : message;
+            } catch (error) {
+                console.error('消息解析失败:', error);
+                return;
+            }
+            console.log('解析后的消息：', parsedMessage);
+
+            // 根据消息类型处理不同的场景
+          
+            if(parsedMessage.source === 'Doublepick'){
+               if(parsedMessage.targetCode === 'MCYB_A02.01_C3_Z1'){
+                    setCurrentLevel('building');
+                    setSelectedItems(prev => ({
+                        ...prev,
+                        campus: 'gulou',
+                        plot: 'plot1',
+                        building: 'building1'
+                    }));
+                    setMenuData(prev => ({
+                        ...prev,
+                        plots: [
+                            { id: 'plot1', name: '蒙民伟楼地块' },
+                            { id: 'plot2', name: '图书馆地块' }
+                        ],
+                        buildings: [
+                            { id: 'building1', name: '蒙民伟楼' },
+                            { id: 'building2', name: '楼二' }
+                        ],
+                        floors: [
+                            { id: 'L1', name: '1F' },
+                            { id: 'L2', name: '2F' },
+                            { id: 'L3', name: '3F' },
+                            { id: 'L4', name: '4F' },
+                            { id: 'L5', name: '5F' },
+                            { id: 'L6', name: '6F' },
+                            { id: 'L7', name: '7F' },
+                            { id: 'L8', name: '8F' },
+                            { id: 'L9', name: '9F' },
+                            { id: 'L10', name: '10F' },
+                            { id: 'L11', name: '11F' },
+                            { id: 'L12', name: '12F' },
+                            { id: 'L13', name: '13F' },
+
+                        ],
+                        rooms: []
+
+                    }));
+                   
+                }else if(parsedMessage.targetCode.startsWith('MCYB_A02.01_C3_Z1/')){
+                    
+                    setCurrentLevel('floor');
+                    setSelectedItems(prev => ({
+                        ...prev,
+                        floor: parsedMessage.targetCode.slice(-2)
+                    }));
+                    console.log(selectedItems)
+                }
+            }
+        };
 
         setSelectedItems(newSelectedItems);
+        
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
     }, [currentLevel]);
-
+    const handleSelectedItemsChange = (newItems) => {
+        setSelectedItems(newItems);
+    };
 
     // 修改generateMenuItems函数以包含所有层级
     const generateMenuItems = () => {
@@ -462,6 +559,59 @@ const Main1 = () => {
         return baseItems;
     };
 
+    // 使用 useMemo 缓存菜单项
+    const menuItems = useMemo(() => generateMenuItems(), [
+        selectedItems,
+        menuData,
+        currentLevel
+    ]);
+
+    const handleMenuClick = ({ key }) => {
+        const [level, value] = key.split('-');
+
+        // 检查是否点击当前选中的项
+        if (selectedItems[level] === value) {
+            
+            // 获取当前层级的索引
+            const currentIndex = LEVELS.indexOf(level);
+
+            if (currentIndex >= 0) {
+                // 返回上一层级
+                const previousLevel = LEVELS[currentIndex];
+                setCurrentLevel(previousLevel);
+                
+                // 清除当前层级及之后的选择
+                const newSelectedItems = { ...selectedItems };
+                LEVELS.forEach((l, index) => {
+                    if (index > currentIndex) {
+                        newSelectedItems[l] = null;
+                    }
+                });
+                setSelectedItems(newSelectedItems);
+                
+                // 清除相应的菜单数据
+                setMenuData(prev => {
+                    const newMenuData = { ...prev };
+                    switch (level) {
+                        case 'floor':
+                            break;
+                        case 'building':
+                            newMenuData.rooms = [];
+                            break;
+                        case 'plot':
+                            newMenuData.floors = [];
+                            newMenuData.rooms = [];
+                            break;
+                    }
+                    return newMenuData;
+                });
+            }
+        } else {
+            // 如果不是当前选中项，调用原有的选择逻辑
+            handleMenuSelect({ key });
+        }
+    };
+
     return (
         <Layout>
             {/* 顶部区域 */}
@@ -469,90 +619,134 @@ const Main1 = () => {
                 backgroundImage: `url(${backgroundImage})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                position: 'relative'
-
+                position: 'relative',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
             }}>
-                {/* 上部分：Logo和用户信息 */}
+                {/* Logo和用户信息区域 */}
                 <div style={{
-                    height: '60px',
-                    background: 'rgba(255, 255, 255, 0)',
-                    backdropFilter: 'blur(8px)',
+                    height: '70px',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    padding: '0 24px',
-                    borderBottom: '1px solid rgba(255, 255, 255, 1)'
+                    padding: '0 32px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
                 }}>
-                    {/* 左侧Logo区域 */}
+                    {/* Logo区域 */}
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px'
+                        gap: '16px'
                     }}>
                         <img
                             src={logo2}
                             alt="南京大学"
-                            style={{ height: '40px' }}
+                            style={{ height: '45px' }}
                         />
                         <span style={{
-                            fontSize: '20px',
-                            fontWeight: 'bold',
-                            color: 'rgba(255, 255, 255, 1)'
+                            fontSize: '24px',
+                            fontWeight: '600',
+                            color: 'rgba(255, 255, 255, 0.95)',
+                            letterSpacing: '1px'
                         }}>
                             南京大学校园空间协同管理决策辅助系统
                         </span>
                     </div>
 
-                    {/* 右侧用户信息区域 */}
-                    <Space size={24}>
-                        <Badge count={6}>
-                        <Button
-                            type="text"
-                            icon={<UserOutlined />}
-                            style={{ fontSize: '18px' }}
-                            onClick={() => {
-                                navigate('/user');
-                            }}
-                        >
-                            用户界面管理界面
-                        </Button>
+                    {/* 用户信息区域 */}
+                    <Space size={28}>
+                        <Badge count={6} style={{ backgroundColor: '#ff4d4f' }}>
+                            <Button
+                                type="text"
+                                icon={<UserOutlined style={{ fontSize: '20px' }} />}
+                                style={{ 
+                                    fontSize: '18px',
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    padding: '8px 16px'
+                                }}
+                                onClick={() => navigate('/user')}
+                            >
+                                用户界面管理界面
+                            </Button>
                         </Badge>
                     </Space>
                 </div>
 
-                {/* 下部分：导航菜单 */}
+                {/* 导航菜单 */}
                 <div style={{
-                    height: '60px',
-                    background: 'rgba(255, 255, 255, 0)',
-                    backdropFilter: 'blur(8px)',
+                    height: '64px',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
                 }}>
                     <Menu
                         mode="horizontal"
                         items={TOP_MENU_ITEMS}
                         style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
                             background: 'transparent',
-                            borderBottom: 'true',
-                            height: '60px',
-                            lineHeight: '60px',
-                            padding: '0 50px',
+                            height: '64px',
+                            lineHeight: '64px',
+                            fontSize: '16px',
+                            fontWeight: '500',
+                            width: 'auto',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            border: 'none'
                         }}
+                        className="custom-top-menu"
                         onClick={MenuItemClick}
-                    >
-                    </Menu>
+                    />
                 </div>
             </div>
 
             {/* 主要内容区域 */}
-            <Layout style={{ minHeight: 'calc(100vh - 120px)' }}>
-                <Sider width={300} style={{ background: '#fff' }}>
+            <Layout style={{ 
+                minHeight: 'calc(100vh - 134px)',
+                background: 'rgba(255, 255, 255, 0.8)',  // 调整背景色为半透明
+            }}>
+                <Sider 
+                    width={320} 
+                    style={{ 
+                        background: 'rgba(255, 255, 255, 0.9)',  // 调整为半透明背景
+                        backdropFilter: 'blur(10px)',  // 添加毛玻璃效果
+                        borderRight: '1px solid rgba(0, 0, 0, 0.06)',  // 更柔和的边框
+                        boxShadow: '2px 0 8px rgba(0, 0, 0, 0.03)',  // 更柔和的阴影
+                        marginRight: '16px',  // 添加右侧间距
+                        marginTop: '16px',    // 添加顶部间距
+                        borderRadius: '0 8px 8px 0',  // 添加右侧圆角
+                    }}
+                >
                     <Menu
                         mode="inline"
                         onSelect={handleMenuSelect}
+                        onClick={handleMenuClick}
                         defaultOpenKeys={['campus']}
-                        style={{ height: '100%' }}
-                        items={generateMenuItems()}
+                        selectedKeys={[
+                            selectedItems.campus ? `campus-${selectedItems.campus}` : '',
+                            selectedItems.plot ? `plot-${selectedItems.plot}` : '',
+                            selectedItems.building ? `building-${selectedItems.building}` : '',
+                            selectedItems.floor ? `floor-${selectedItems.floor}` : '',
+                            selectedItems.room ? `room-${selectedItems.room}` : '',
+                        ].filter(Boolean)}
+                        style={{ 
+                            height: '100%',
+                            maxHeight: 'calc(100vh - 134px)',
+                            overflowY: 'auto',
+                            overflowX: 'hidden',
+                            fontSize: '15px',
+                            padding: '12px 0',
+                            background: 'transparent',  // 透明背景
+                            border: 'none',  // 移除边框
+                        }}
+                        // 添加 Menu 组件的主题定制
+                        theme="light"
+                        // 添加自定义类名以便覆盖默认样式
+                        className="custom-side-menu"
+                        items={menuItems}
                     />
                 </Sider>
                 {/* 建筑基本信息 */}
@@ -560,18 +754,30 @@ const Main1 = () => {
                     <div style={{ position: 'absolute', zIndex: 1000 }}>
                         <DraggableTable
                             dataSource={buildingInfo}
-                            defaultPosition={{ x: 20, y: 20 }}
+                            defaultPosition={{ x: 24, y: 24 }}
                             columnnumber={1}
-                            style={{ minWidth: '600px' }}
+                            style={{ 
+                                minWidth: '650px',
+                                boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+                                borderRadius: '8px'
+                            }}
                             title={
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    padding: '12px 16px',
+                                    borderBottom: '1px solid #f0f0f0',
+                                    fontSize: '16px',
+                                    fontWeight: '500'
+                                }}>
                                     <span>建筑基本信息</span>
                                     <Button
                                         type="text"
                                         size="small"
-                                        onClick={() => setDraggableTableControls(prevState => ({
-                                            ...prevState,
-                                            roomInfo: !prevState.roomInfo
+                                        onClick={() => setDraggableTableControls(prev => ({
+                                            ...prev,
+                                            roomInfo: !prev.roomInfo
                                         }))}
                                         style={{ padding: '4px' }}
                                     >
@@ -593,7 +799,7 @@ const Main1 = () => {
                                 setBuildingachive(newData);
                                 
                             }}
-                            defaultPosition={{ x: 700, y:300 }}  
+                            defaultPosition={{ x: 100, y:100 }}  
                             title={
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span>房屋档案</span>
@@ -666,11 +872,20 @@ const Main1 = () => {
                     </div>
                 )}
 
-                <Content style={{ padding: 24, background: '#fff' }}>
+                <Content style={{ 
+                    padding: 28,
+                    background: 'rgba(255, 255, 255, 0.9)',  // 调整为半透明背景
+                    backdropFilter: 'blur(10px)',  // 添加毛玻璃效果
+                    margin: '16px 16px 16px 0',  // 调整边距
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+                }}>
                     <Scene3D
                         currentLevel={currentLevel}
                         setCurrentLevel={setCurrentLevel}
                         selectedItems={selectedItems}
+                        onSelectedItemsChange={handleSelectedItemsChange}
+                        setMenuData={setMenuData}
                     />
                 </Content>
             </Layout>

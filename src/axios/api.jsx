@@ -111,7 +111,7 @@ export const requestGetCampusInfo = (campusId) => {
 export const requestGetBuildingInfo = (buildingId,buildingType) => {
     if(buildingType == 0){
         return api.get(`/api/building/${buildingId}/basicInfo`).then(response=>{
-            return response
+            return response.data
         }).catch(error=>{
             return error;
         })  ;

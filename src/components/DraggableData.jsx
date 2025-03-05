@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { Table, Input, Upload, Image, Button, Space } from 'antd';
+import { Table, Input, Upload, Image, Button, Space, message } from 'antd';
 import Draggable from 'react-draggable';
 import PropTypes from 'prop-types';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { UploadOutlined, DeleteOutlined, CloseOutlined } from '@ant-design/icons';
 
 const DraggableData = ({ 
     dataSource: initialDataSource, 
     title = "数据表格",
     columns = [],
     defaultPosition = { x: 100, y: 100 },
-    onDataChange
+    onDataChange,
+    onClose
 }) => {
     const [dataSource, setDataSource] = useState(initialDataSource);
     const [position, setPosition] = useState(defaultPosition);
@@ -19,6 +20,7 @@ const DraggableData = ({
         bottom: 0,
         right: 0
     });
+    const [isEdited, setIsEdited] = useState(false);
 
     // 开始拖拽时计算边界
     const onStart = (event, uiData) => {
@@ -46,6 +48,7 @@ const DraggableData = ({
                 }
             };
             setDataSource(newData);
+            setIsEdited(true);
             if (onDataChange) {
                 onDataChange(newData);
             }
@@ -68,15 +71,30 @@ const DraggableData = ({
         handleCellChange(null, record, fieldName, 'image');
     };
 
+    // 添加保存处理函数
+    const handleSave = async () => {
+        try {
+            if (onDataChange) {
+                await onDataChange(dataSource);
+                message.success('保存成功！');
+                setIsEdited(false);
+            }
+        } catch (error) {
+            message.error('保存失败，请重试！');
+        }
+    };
+
     // 扩展列配置
     const enhancedColumns = columns.map(col => {
         if (col.editable) {
             return {
                 ...col,
+                ellipsis: true,
+                width: 'auto',
                 render: (cellData, record) => {
                     const value = cellData || {};
                     return (
-                        <div className="editable-cell-container">
+                        <div className="editable-cell-container" style={{ minWidth: '60px' }}>
                             <Input.TextArea
                                 value={value.text}
                                 onChange={e => handleCellChange(e.target.value, record, col.key, 'text')}
@@ -184,7 +202,7 @@ const DraggableData = ({
                     borderRadius: '12px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     zIndex: 1000,
-                    maxWidth: '80vw',
+                    maxWidth: '60vw',
                     minWidth: '300px',
                     maxHeight: '60vh',
                     display: 'flex',
@@ -201,10 +219,25 @@ const DraggableData = ({
                         marginBottom: '16px',
                         fontWeight: '500',
                         color: '#262626',
-                        borderBottom: '1px solid #f0f0f0'
+                        borderBottom: '1px solid #f0f0f0',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '12px'
                     }}
                 >
-                    {title}
+                    <span style={{ flex: 1 }}>{title}</span>
+                    <Space>
+                        <Button 
+                            type="primary"
+                            onClick={handleSave}
+                            disabled={!isEdited}
+                            size="small"
+                        >
+                            保存
+                        </Button>
+                       
+                    </Space>
                 </div>
                 <div style={{ 
                     overflowX: 'auto',
@@ -216,7 +249,7 @@ const DraggableData = ({
                         dataSource={dataSource} 
                         columns={enhancedColumns}
                         pagination={false} 
-                        scroll={{ x: 900 }}
+                        scroll={{ x: 'max-content' }}
                         style={{
                             borderRadius: '8px',
                             overflow: 'hidden'
@@ -239,7 +272,8 @@ DraggableData.propTypes = {
         y: PropTypes.number
     }),
     columns: PropTypes.arrayOf(PropTypes.object).isRequired,
-    onDataChange: PropTypes.func
+    onDataChange: PropTypes.func,
+    onClose: PropTypes.func
 };
 
 export default DraggableData; 

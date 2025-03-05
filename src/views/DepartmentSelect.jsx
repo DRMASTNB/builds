@@ -22,7 +22,8 @@ export const DepartmentSelect = () => {
 
     const handleDepartmentSelect = (deptId) => {
         // 存储所选部门
-        localStorage.setItem('selectedDepartment', deptId);
+        localStorage.setItem('selectedDepartment', departments[deptId-1].name);
+        console.log(localStorage.getItem('selectedDepartment'));
         // 跳转到登录页
         navigate('/login1');
     };
